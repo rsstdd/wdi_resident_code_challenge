@@ -1,9 +1,12 @@
 'use strict';
 
 (function() {
-  var json;
-  var reader;
-  var progress = document.querySelector('.percent');
+  let json;
+  let reader;
+  const progress = document.querySelector('.percent');
+  const cancel = document.getElementById('cancel');
+
+  cancel.addEventListener('click', abortRead);
 
   function abortRead() {
     reader.abort();
@@ -26,7 +29,7 @@
 
   function updateProgress(e) {
     if (e.lengthComputable) {
-      var percentLoaded = Math.round((e.loaded / e.total) * 100);
+      const percentLoaded = Math.round((e.loaded / e.total) * 100);
 
       if (percentLoaded < 100) {
         progress.style.width = percentLoaded + '%';
@@ -35,18 +38,18 @@
     }
   }
 
-  function handleFileSelect(e) {
+  function handleFile(e) {
     progress.style.width = '0%';
     progress.textContent = '0%';
 
-    var files = e.target.files;
+    const files = e.target.files;
 
-    for (var i = 0, f; f = files[i]; i++) {
+    for (let i = 0, f; f = files[i]; i++) {
 
-      var reader = new FileReader();
+      const reader = new FileReader();
 
       reader.onerror = errorHandler;
-      reader.onprogress = updateProgress;
+      reader.onprogress = progress;
       reader.onabort = function(e) {
         alert('File read cancelled');
       };
@@ -62,12 +65,21 @@
           setTimeout("document.getElementById('progress_bar').className='';", 1000);
         try {
           json = JSON.parse(e.target.result);
-          if (json.length === 0) {
-            alert('Add content to JSON file');
-          }
-          console.log(json);
+
+          for (let i = 0; i < json.length; i++) {
+            console.log(json[i]);
+           for (let key in json[i]) {
+             if (key === 'tag') {
+               console.log('outer tag: ', json[i].tag);
+             } else {
+               console.log('inner tag: ', json[i].content.tag);
+               console.log('content: ', json[i].content.content);
+             }
+             console.log('---------------');
+           }
+         }
         } catch (err) {
-          alert('ex when trying to parse json = ' + err);
+          alert('Err when trying to parse json = ' + err);
         }
       }
     })(f);
@@ -75,5 +87,5 @@
     }
   }
 
-  document.getElementById('files').addEventListener('change', handleFileSelect, false);
+  document.getElementById('files').addEventListener('change', handleFile, false);
 })();

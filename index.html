@@ -16,18 +16,20 @@
         <p>Load a file and watch your HTML appear!</p>
       </div>
     </div>
+    <div id="html">
 
+    </div>
     <!-- upload file -->
     <div id="drop_zone" class="row">
       <div class="form-group col-md-12">
         <label for="exampleInputFile">File input</label>
         <input type="file" id="files" name="files[]" multiple />
       </div>
-      <button onclick="abortRead();">Cancel</button>
+      <button id="cancel">Cancel</button>
     </div>
 
 
-    <div id="progress_bar"><div class="percent">0%</div></div>
+    <div id="progress_bar"><span class="percent">0%</span></div>
 
 
     <output id="list"></output>
