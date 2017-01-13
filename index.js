@@ -1,6 +1,6 @@
-'use strict';
-
 (function() {
+  'use strict';
+
   if (window.File && window.FileReader && window.FileList && window.Blob) {
     let json;
     let reader;
@@ -102,12 +102,11 @@
           }
         };
       })(file);
-        reader.readAsText(file);
+      reader.readAsText(file);
     }
   };
 
     document.getElementById('files').addEventListener('change', handleFile, false);
-
   } else {
     alert('The File APIs are not fully supported in this browser.');
   }
