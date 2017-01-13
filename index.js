@@ -44,10 +44,6 @@
       progress.textContent = '0%';
       const files = e.target.files;
 
-      reader.onabort = function(e) {
-        alert('File read cancelled');
-      };
-
       for (let i = 0, file; file = files[i]; i++) {
         const reader = new FileReader();
         reader.onerror = errorHandler;
@@ -55,6 +51,10 @@
 
         reader.onloadstart = function(e) {
           document.getElementById('progress_bar').className = 'loading';
+        };
+
+        reader.onabort = function(e) {
+          alert('File read cancelled');
         };
 
         reader.onload = (function (upload) {
