@@ -65,31 +65,33 @@
           setTimeout("document.getElementById('progress_bar').className='';", 1000);
         try {
           json = JSON.parse(e.target.result);
-          const appendTo = document.getElementById('html');
           let html = '';
 
           const getElements = (json) => {
-
+            console.log(json);
             json.forEach((item) => {
               if (typeof item.content.content === 'string') {
-                html += `<${item.tag}>${item.content.content}</${item.tag}>`
+                html += `<${item.tag}><${item.content.tag}>${item.content.content}</${item.content.tag}></${item.tag}>`
+
               } else if (Array.isArray(item.content.content)){
                 html += `<${item.tag}>`
 
+                // getElements(item.content);
                 getElements(item.content.content);
 
                 html += `</${item.tag}>`
               } else if (typeof item.content === 'object') {
-                html += `<${item.content.tag}>${item.content.content}</${item.content.tag}>`;
+                // html += `<${item.content.tag}>${item.content.content}</${item.content.tag}>`;
+                html += `<${item.content.tag}>`;
                 getElements(item.content);
-                console.log(`<${item.content.tag}>${item.content.content}</${item.content.tag}>`);
+                html += `</${item.content.tag}>`
+                // console.log(`<${item.content.tag}>${item.content.content}</${item.content.tag}>`);
               } else {
                 html += `<${item.tag}>${item.content}</${item.tag}>`
 
               }
             })
-            console.log(html);
-            appendTo.innerHTML = html;
+            document.getElementById('html').innerHTML = html;
           }
           getElements(json);
         } catch (err) {
