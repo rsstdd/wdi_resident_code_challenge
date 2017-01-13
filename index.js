@@ -12,20 +12,20 @@
     reader.abort();
   }
 
-  function errorHandler(e) {
-    switch(e.target.error.code) {
-      case e.target.error.NOT_FOUND_ERR:
-        alert('File Not Found!');
-        break;
-      case e.target.error.NOT_READABLE_ERR:
-        alert('File is not readable');
-        break;
-      case e.target.error.ABORT_ERR:
-        break;
-      default:
-        alert('An error occurred reading this file.');
-    };
-  }
+  // function errorHandler(e) {
+  //   switch(e.target.error.code) {
+  //     case e.target.error.NOT_FOUND_ERR:
+  //       alert('File Not Found!');
+  //       break;
+  //     case e.target.error.NOT_READABLE_ERR:
+  //       alert('File is not readable');
+  //       break;
+  //     case e.target.error.ABORT_ERR:
+  //       break;
+  //     default:
+  //       alert('An error occurred reading this file.');
+  //   };
+  // }
 
   function updateProgress(e) {
     if (e.lengthComputable) {
@@ -44,11 +44,11 @@
 
     const files = e.target.files;
 
-    for (let i = 0, f; f = files[i]; i++) {
+    for (let i = 0, file; file = files[i]; i++) {
 
       const reader = new FileReader();
 
-      reader.onerror = errorHandler;
+      // reader.onerror = errorHandler;
       reader.onprogress = progress;
       reader.onabort = function(e) {
         alert('File read cancelled');
@@ -58,7 +58,7 @@
         document.getElementById('progress_bar').className = 'loading';
       };
 
-      reader.onload = (function (theFile) {
+      reader.onload = (function (upload) {
         return function (e) {
           progress.style.width = '100%';
           progress.textContent = '100%';
@@ -66,26 +66,45 @@
         try {
           json = JSON.parse(e.target.result);
 
-          for (let i = 0; i < json.length; i++) {
-            console.log(json[i]);
-           for (let key in json[i]) {
-             if (key === 'tag') {
-               console.log('outer tag: ', json[i].tag);
-             } else {
-               console.log('inner tag: ', json[i].content.tag);
-               console.log('content: ', json[i].content.content);
-             }
-             console.log('---------------');
-           }
-         }
+          document.getElementById('html').innerHTML = getElements(json);
+
         } catch (err) {
           alert('Err when trying to parse json = ' + err);
         }
       }
-    })(f);
-      reader.readAsText(f);
+    })(file);
+      reader.readAsText(file);
     }
   }
+
+
+  const getElements = (json) => {
+    let html = '';
+
+    json.forEach((item) => {
+      // console.log(item.content);
+      // console.log(typeof item.content);
+      if (typeof item.content.content === 'string') {
+        console.log('tag: ', item.tag);
+        console.log('content: ', item.content.content);
+        html += `<${item.tag}> ${item.content.content} </$item.tag>`
+      } else if (Array.isArray(item.content.content)){
+        // console.log(Array.isArray(item.content));
+        // getElements(item.content);
+        // console.log('tag: ', item.tag);
+        // console.log('content: ', item.content);
+      }
+      //  else if (typeof item.content === 'object') {
+      //   // getElements(item.content);
+      //   // console.log('tag: ', item.tag);
+      //   // console.log('content: ', item.content);
+      // }
+    });
+
+    return html;
+  }
+
+
 
   document.getElementById('files').addEventListener('change', handleFile, false);
 })();
