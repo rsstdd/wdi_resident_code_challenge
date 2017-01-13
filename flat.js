@@ -5,6 +5,8 @@
   let reader;
   const progress = document.querySelector('.percent');
   const cancel = document.getElementById('cancel');
+  const result = {};
+
 
   cancel.addEventListener('click', abortRead);
 
@@ -48,7 +50,7 @@
 
       const reader = new FileReader();
 
-      reader.onerror = errorHandler;
+      // reader.onerror = errorHandler;
       reader.onprogress = progress;
       reader.onabort = function(e) {
         alert('File read cancelled');
@@ -65,33 +67,8 @@
           setTimeout("document.getElementById('progress_bar').className='';", 1000);
         try {
           json = JSON.parse(e.target.result);
-          const appendTo = document.getElementById('html');
-          let html = '';
+          flatten(json);
 
-          const getElements = (json) => {
-
-            json.forEach((item) => {
-              if (typeof item.content.content === 'string') {
-                html += `<${item.tag}>${item.content.content}</${item.tag}>`
-              } else if (Array.isArray(item.content.content)){
-                html += `<${item.tag}>`
-
-                getElements(item.content.content);
-
-                html += `</${item.tag}>`
-              } else if (typeof item.content === 'object') {
-                html += `<${item.content.tag}>${item.content.content}</${item.content.tag}>`;
-                getElements(item.content);
-                console.log(`<${item.content.tag}>${item.content.content}</${item.content.tag}>`);
-              } else {
-                html += `<${item.tag}>${item.content}</${item.tag}>`
-
-              }
-            })
-            console.log(html);
-            appendTo.innerHTML = html;
-          }
-          getElements(json);
         } catch (err) {
           alert('Err when trying to parse json = ' + err);
         }
@@ -100,6 +77,46 @@
       reader.readAsText(file);
     }
   }
+
+  const flatten = (data) => {
+    function recurse(cur, prop) {
+        if (Object(cur) !== cur) {
+            result[prop] = cur;
+        } else if (Array.isArray(cur)) {
+            for (var i = 0, l = cur.length; i < l; i++)
+            recurse(cur[i], prop + "[" + i + "]");
+            if (l == 0) result[prop] = [];
+        } else {
+            let isEmpty = true;
+            for (let p in cur) {
+                isEmpty = false;
+                recurse(cur[p], prop ? prop + "." + p : p);
+            }
+            if (isEmpty && prop) result[prop] = {};
+        }
+    }
+    recurse(data, '');
+    makeHtml();
+};
+
+const makeHtml = (json) => {
+  let html = '';
+  let tempArr = [];
+
+  for (let keys in result) {
+    html += keys.indexOf('tag') > 0  ? `${result[keys]}` : `${result[keys]}`
+    tempArr.push(html);
+    // console.log(html);
+  }
+
+  tempArr.map((item) => {
+    z.innerHTML = 'test satu dua tiga<';
+document.body.appendChild(z);
+    console.log(item);
+    const z = document.createElement('div');
+    document.getElementById('html').appendChild(item);
+  })
+}
 
   document.getElementById('files').addEventListener('change', handleFile, false);
 })();
